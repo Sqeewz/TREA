@@ -3,6 +3,8 @@ import BMIForm from '@/components/BMIForm'
 import HistoryList from '@/components/HistoryList'
 import MISReports from '@/components/MISReports'
 
+export const dynamic = 'force-dynamic'
+
 export default async function Home() {
   const history = await getBMIHistory()
   const reports = await getMISReports()
