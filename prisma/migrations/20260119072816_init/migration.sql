@@ -1,0 +1,9 @@
+-- CreateTable
+CREATE TABLE "BMIHistory" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "height" REAL NOT NULL,
+    "weight" REAL NOT NULL,
+    "bmi" REAL NOT NULL,
+    "category" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

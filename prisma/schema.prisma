@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model BMIHistory {
+  id        Int      @id @default(autoincrement())
+  height    Float
+  weight    Float
+  bmi       Float
+  category  String
+  createdAt DateTime @default(now())
+}
