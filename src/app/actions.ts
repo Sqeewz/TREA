@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { getSession } from '@/lib/auth'
 
-export async function saveBMI(height: number, weight: number) {
+export async function saveBMI(height: number, weight: number, gender: string, age: number) {
   const session = await getSession()
   const userId = session?.userId
   
@@ -12,10 +12,28 @@ export async function saveBMI(height: number, weight: number) {
   const bmi = weight / (heightInMeters * heightInMeters)
   
   let category = ''
-  if (bmi < 18.5) category = 'Underweight'
-  else if (bmi < 25) category = 'Normal weight'
-  else if (bmi < 30) category = 'Overweight'
-  else category = 'Obesity'
+  let recommendation = ''
+  
+  if (bmi < 18.5) {
+    category = 'Underweight'
+    recommendation = 'ควรรับประทานอาหารที่มีประโยชน์และเพิ่มปริมาณอาหารให้เหมาะสม'
+    if (gender === 'female') recommendation += ' และควรเสริมธาตุเหล็กและแคลเซียม'
+  } else if (bmi < 25) {
+    category = 'Normal weight'
+    recommendation = 'รักษาสุขภาพให้แข็งแรง ออกกำลังกายอย่างสม่ำเสมอ'
+    if (gender === 'male') recommendation += ' ควรเน้นการสร้างกล้ามเนื้อเพื่อความแข็งแรง'
+    if (age > 60) recommendation += ' ผู้สูงอายุควรระวังเรื่องมวลกล้ามเนื้อและโภชนาการ'
+  } else if (bmi < 30) {
+    category = 'Overweight'
+    recommendation = 'ควรควบคุมอาหารและออกกำลังกายเพื่อลดน้ำหนัก'
+  } else {
+    category = 'Obesity'
+    recommendation = 'ควรปรึกษาแพทย์เพื่อรับคำแนะนำในการลดน้ำหนัก'
+  }
+
+  if (age < 20) {
+    recommendation += ' (สำหรับผู้ที่มีอายุต่ำกว่า 20 ปี ควรใช้กราฟการเจริญเติบโตในการประเมินเพิ่มเติม)'
+  }
 
   await prisma.bMIHistory.create({
     data: {
@@ -23,12 +41,14 @@ export async function saveBMI(height: number, weight: number) {
       weight,
       bmi: parseFloat(bmi.toFixed(2)),
       category,
+      gender,
+      age,
       userId: userId ? parseInt(userId) : null
     },
   })
 
   revalidatePath('/')
-  return { bmi: parseFloat(bmi.toFixed(2)), category }
+  return { bmi: parseFloat(bmi.toFixed(2)), category, recommendation }
 }
 
 export async function generateMockData() {
@@ -44,6 +64,9 @@ export async function generateMockData() {
     
     const height = 150 + Math.random() * 50 // 150-200cm
     const weight = 40 + Math.random() * 80 // 40-120kg
+    const gender = Math.random() > 0.5 ? 'male' : 'female'
+    const age = Math.floor(15 + Math.random() * 60) // 15-75 years old
+
     const heightInMeters = height / 100
     const bmi = weight / (heightInMeters * heightInMeters)
     
@@ -58,6 +81,8 @@ export async function generateMockData() {
       weight: parseFloat(weight.toFixed(1)),
       bmi: parseFloat(bmi.toFixed(2)),
       category,
+      gender,
+      age,
       createdAt: date,
       userId
     })

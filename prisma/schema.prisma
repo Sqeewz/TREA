@@ -22,6 +22,8 @@ model BMIHistory {
   weight    Float
   bmi       Float
   category  String
+  gender    String?
+  age       Int?
   createdAt DateTime @default(now())
   userId    Int?
   user      User?    @relation(fields: [userId], references: [id])
