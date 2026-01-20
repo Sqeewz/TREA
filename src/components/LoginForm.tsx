@@ -60,6 +60,12 @@ export default function LoginForm() {
             <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
               Don't have an account? Register
             </Link>
+            <p className="font-medium text-black hover:text-indigo-500">IF U R TESTER !</p>
+            <p className="font-medium text-black hover:text-indigo-500">username : test@example.com</p>
+            <p className="font-medium text-black">password : test123456</p>
+            <p>____________________________________________________</p>
+            <p className="font-medium text-black">presented by</p>
+            <p className="font-medium text-black">67162110146-1</p>
           </div>
         </form>
       </div>
