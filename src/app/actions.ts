@@ -2,8 +2,12 @@
 
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
+import { getSession } from '@/lib/auth'
 
 export async function saveBMI(height: number, weight: number) {
+  const session = await getSession()
+  const userId = session?.userId
+  
   const heightInMeters = height / 100
   const bmi = weight / (heightInMeters * heightInMeters)
   
@@ -19,6 +23,7 @@ export async function saveBMI(height: number, weight: number) {
       weight,
       bmi: parseFloat(bmi.toFixed(2)),
       category,
+      userId: userId ? parseInt(userId) : null
     },
   })
 
@@ -27,6 +32,9 @@ export async function saveBMI(height: number, weight: number) {
 }
 
 export async function generateMockData() {
+  const session = await getSession()
+  const userId = session?.userId ? parseInt(session.userId) : null
+
   const records = []
   const categories = ['Underweight', 'Normal weight', 'Overweight', 'Obesity']
   
@@ -50,7 +58,8 @@ export async function generateMockData() {
       weight: parseFloat(weight.toFixed(1)),
       bmi: parseFloat(bmi.toFixed(2)),
       category,
-      createdAt: date
+      createdAt: date,
+      userId
     })
   }
 
@@ -62,7 +71,13 @@ export async function generateMockData() {
 }
 
 export async function getBMIHistory() {
+  const session = await getSession()
+  const userId = session?.userId ? parseInt(session.userId) : null
+
   return await prisma.bMIHistory.findMany({
+    where: {
+      userId: userId
+    },
     orderBy: {
       createdAt: 'desc',
     },
@@ -70,7 +85,13 @@ export async function getBMIHistory() {
 }
 
 export async function getMISReports() {
+  const session = await getSession()
+  const userId = session?.userId ? parseInt(session.userId) : null
+
   const allData = await prisma.bMIHistory.findMany({
+    where: {
+      userId: userId
+    },
     orderBy: { createdAt: 'asc' }
   })
 
